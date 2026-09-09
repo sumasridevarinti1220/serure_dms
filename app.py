@@ -1,18 +1,17 @@
 import streamlit as st
-import os
+from pathlib import Path
 import json
 import hashlib
 import uuid
 from datetime import datetime
-from pathlib import Path
 
 
 # ============================================================
-# PAGE CONFIG
+# PAGE CONFIGURATION
 # ============================================================
 
 st.set_page_config(
-    page_title="Secure Digital Document Management System",
+    page_title="Secure DMS",
     page_icon="🔐",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -20,40 +19,32 @@ st.set_page_config(
 
 
 # ============================================================
-# PROJECT DIRECTORIES
+# PROJECT PATHS
 # ============================================================
 
 BASE_DIR = Path(__file__).parent
 
 ASSETS_DIR = BASE_DIR / "assets"
 DATA_DIR = BASE_DIR / "data"
-UPLOAD_DIR = BASE_DIR / "uploads"
+UPLOADS_DIR = BASE_DIR / "uploads"
 
 ASSETS_DIR.mkdir(exist_ok=True)
 DATA_DIR.mkdir(exist_ok=True)
-UPLOAD_DIR.mkdir(exist_ok=True)
+UPLOADS_DIR.mkdir(exist_ok=True)
 
 
-# ============================================================
-# ASSETS
-# ============================================================
+POLICE_BG = ASSETS_DIR / "police_background.jpg"
+LEGAL_BG = ASSETS_DIR / "legal_background.jpg"
+FORENSIC_BG = ASSETS_DIR / "forensic_background.jpg"
+LOGO = ASSETS_DIR / "logo.png"
 
-POLICE_BG = "assets/police_background.jpg"
-LEGAL_BG = "assets/legal_background.jpg"
-FORENSIC_BG = "assets/forensic_background.jpg"
-LOGO = "assets/logo.png"
-
-
-# ============================================================
-# DATA FILES
-# ============================================================
 
 USERS_FILE = DATA_DIR / "users.json"
 CASES_FILE = DATA_DIR / "cases.json"
 DOCUMENTS_FILE = DATA_DIR / "documents.json"
 AUDIT_FILE = DATA_DIR / "audit_log.json"
-ALERTS_FILE = DATA_DIR / "security_alerts.json"
 BLOCKCHAIN_FILE = DATA_DIR / "blockchain.json"
+ALERTS_FILE = DATA_DIR / "security_alerts.json"
 LOGIN_ATTEMPTS_FILE = DATA_DIR / "login_attempts.json"
 
 
@@ -63,128 +54,95 @@ LOGIN_ATTEMPTS_FILE = DATA_DIR / "login_attempts.json"
 
 DEFAULT_USERS = {
 
-    # ADMIN
     "admin": {
-        "username": "admin",
         "password": "Admin@2026",
         "name": "System Administrator",
-        "department": "NCRB Administration",
-        "role": "admin",
-        "active": True
+        "department": "Administration",
+        "role": "ADMIN"
     },
 
-    # POLICE
     "police_officer": {
-        "username": "police_officer",
         "password": "Police@2026",
         "name": "Police Officer",
         "department": "Police",
-        "role": "officer",
-        "active": True
+        "role": "OFFICER"
     },
 
-    "police_head": {
-        "username": "police_head",
-        "password": "PoliceHead@2026",
-        "name": "Police Department Head",
-        "department": "Police",
-        "role": "head",
-        "active": True
-    },
-
-    # FORENSIC
     "forensic_officer": {
-        "username": "forensic_officer",
         "password": "Forensic@2026",
         "name": "Forensic Officer",
         "department": "Forensic",
-        "role": "officer",
-        "active": True
+        "role": "OFFICER"
     },
 
-    "forensic_head": {
-        "username": "forensic_head",
-        "password": "ForensicHead@2026",
-        "name": "Forensic Department Head",
-        "department": "Forensic",
-        "role": "head",
-        "active": True
-    },
-
-    # LEGAL
     "legal_officer": {
-        "username": "legal_officer",
         "password": "Legal@2026",
         "name": "Legal Officer",
         "department": "Legal",
-        "role": "officer",
-        "active": True
+        "role": "OFFICER"
     },
 
-    "legal_head": {
-        "username": "legal_head",
-        "password": "LegalHead@2026",
-        "name": "Legal Department Head",
-        "department": "Legal",
-        "role": "head",
-        "active": True
-    },
-
-    # INVESTIGATION
     "investigator": {
-        "username": "investigator",
         "password": "Invest@2026",
-        "name": "Investigation Officer",
+        "name": "Investigator",
         "department": "Investigation",
-        "role": "officer",
-        "active": True
+        "role": "OFFICER"
     },
 
-    "investigation_head": {
-        "username": "investigation_head",
-        "password": "InvestHead@2026",
-        "name": "Investigation Department Head",
-        "department": "Investigation",
-        "role": "head",
-        "active": True
-    },
-
-    # COURT
     "court_officer": {
-        "username": "court_officer",
         "password": "Court@2026",
         "name": "Court Officer",
         "department": "Court",
-        "role": "officer",
-        "active": True
+        "role": "OFFICER"
+    },
+
+    "security_admin": {
+        "password": "Secure@2026",
+        "name": "Security Administrator",
+        "department": "Security",
+        "role": "OFFICER"
+    },
+
+    "police_head": {
+        "password": "PoliceHead@2026",
+        "name": "Police Department Head",
+        "department": "Police",
+        "role": "HEAD"
+    },
+
+    "forensic_head": {
+        "password": "ForensicHead@2026",
+        "name": "Forensic Department Head",
+        "department": "Forensic",
+        "role": "HEAD"
+    },
+
+    "legal_head": {
+        "password": "LegalHead@2026",
+        "name": "Legal Department Head",
+        "department": "Legal",
+        "role": "HEAD"
+    },
+
+    "investigation_head": {
+        "password": "InvestHead@2026",
+        "name": "Investigation Department Head",
+        "department": "Investigation",
+        "role": "HEAD"
     },
 
     "court_head": {
-        "username": "court_head",
         "password": "CourtHead@2026",
         "name": "Court Department Head",
         "department": "Court",
-        "role": "head",
-        "active": True
-    },
-
-    # CYBERSECURITY
-    "security_admin": {
-        "username": "security_admin",
-        "password": "Secure@2026",
-        "name": "Security Administrator",
-        "department": "Cybersecurity",
-        "role": "officer",
-        "active": True
+        "role": "HEAD"
     },
 
     "security_head": {
-        "username": "security_head",
         "password": "SecurityHead@2026",
-        "name": "Cybersecurity Head",
-        "department": "Cybersecurity",
-        "role": "head",
-        "active": True
+        "name": "Security Department Head",
+        "department": "Security",
+        "role": "HEAD"
     }
 }
 
@@ -193,139 +151,117 @@ DEFAULT_USERS = {
 # JSON FUNCTIONS
 # ============================================================
 
-def load_json(file_path, default):
-
-    if not file_path.exists():
-        save_json(file_path, default)
-        return default
-
+def load_json(path, default):
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-
+        if path.exists():
+            with open(path, "r", encoding="utf-8") as file:
+                return json.load(file)
     except Exception:
-        return default
+        pass
+
+    return default
 
 
-def save_json(file_path, data):
-
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(
-            data,
-            f,
-            indent=4,
-            ensure_ascii=False
-        )
+def save_json(path, data):
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4, ensure_ascii=False)
 
 
 # ============================================================
-# INITIALIZE FILES
+# INITIALIZE DATABASE
 # ============================================================
 
 def initialize_database():
 
-    if not USERS_FILE.exists():
-        save_json(
-            USERS_FILE,
-            DEFAULT_USERS
-        )
+    users = load_json(USERS_FILE, {})
+
+    changed = False
+
+    # Add missing default accounts without deleting existing data
+    for username, account in DEFAULT_USERS.items():
+
+        if username not in users:
+            users[username] = account
+            changed = True
+
+    if changed or not USERS_FILE.exists():
+        save_json(USERS_FILE, users)
 
     if not CASES_FILE.exists():
-        save_json(
-            CASES_FILE,
-            []
-        )
+        save_json(CASES_FILE, [])
 
     if not DOCUMENTS_FILE.exists():
-        save_json(
-            DOCUMENTS_FILE,
-            []
-        )
+        save_json(DOCUMENTS_FILE, [])
 
     if not AUDIT_FILE.exists():
-        save_json(
-            AUDIT_FILE,
-            []
-        )
-
-    if not ALERTS_FILE.exists():
-        save_json(
-            ALERTS_FILE,
-            []
-        )
+        save_json(AUDIT_FILE, [])
 
     if not BLOCKCHAIN_FILE.exists():
-        save_json(
-            BLOCKCHAIN_FILE,
-            []
-        )
+        save_json(BLOCKCHAIN_FILE, [])
+
+    if not ALERTS_FILE.exists():
+        save_json(ALERTS_FILE, [])
 
     if not LOGIN_ATTEMPTS_FILE.exists():
-        save_json(
-            LOGIN_ATTEMPTS_FILE,
-            {}
-        )
+        save_json(LOGIN_ATTEMPTS_FILE, {})
 
 
 initialize_database()
 
 
 # ============================================================
-# LOAD DATABASE
+# HASH FUNCTIONS
 # ============================================================
 
-users = load_json(
-    USERS_FILE,
-    DEFAULT_USERS
-)
+def calculate_hash(data):
+    return hashlib.sha256(data).hexdigest()
 
-cases = load_json(
-    CASES_FILE,
-    []
-)
 
-documents = load_json(
-    DOCUMENTS_FILE,
-    []
-)
-
-audit_logs = load_json(
-    AUDIT_FILE,
-    []
-)
-
-security_alerts = load_json(
-    ALERTS_FILE,
-    []
-)
-
-blockchain = load_json(
-    BLOCKCHAIN_FILE,
-    []
-)
-
-login_attempts = load_json(
-    LOGIN_ATTEMPTS_FILE,
-    {}
-)
+def hash_text(text):
+    return hashlib.sha256(
+        text.encode("utf-8")
+    ).hexdigest()
 
 
 # ============================================================
-# HELPER FUNCTIONS
+# BLOCKCHAIN AUDIT
 # ============================================================
 
-def current_time():
+def add_blockchain_block(entry):
 
-    return datetime.now().strftime(
-        "%Y-%m-%d %H:%M:%S"
+    chain = load_json(
+        BLOCKCHAIN_FILE,
+        []
     )
 
+    previous_hash = "GENESIS"
 
-def generate_id(prefix):
+    if chain:
+        previous_hash = chain[-1]["current_hash"]
 
-    return (
-        f"{prefix}-"
-        f"{uuid.uuid4().hex[:10].upper()}"
+    block = {
+        "block_number": len(chain) + 1,
+        "timestamp": entry["timestamp"],
+        "user": entry["user"],
+        "action": entry["action"],
+        "details": entry["details"],
+        "previous_hash": previous_hash
+    }
+
+    block_string = json.dumps(
+        block,
+        sort_keys=True
+    )
+
+    block["current_hash"] = hash_text(
+        block_string
+    )
+
+    chain.append(block)
+
+    save_json(
+        BLOCKCHAIN_FILE,
+        chain
     )
 
 
@@ -334,629 +270,352 @@ def generate_id(prefix):
 # ============================================================
 
 def add_audit_log(
-    username,
     action,
-    description,
-    department="System"
-):
-
-    global audit_logs
-
-    entry = {
-        "id": generate_id("AUDIT"),
-        "timestamp": current_time(),
-        "username": username,
-        "department": department,
-        "action": action,
-        "description": description
-    }
-
-    audit_logs.append(entry)
-
-    save_json(
-        AUDIT_FILE,
-        audit_logs
-    )
-
-
-# ============================================================
-# SHA-256
-# ============================================================
-
-def hash_file(file_path):
-
-    sha256 = hashlib.sha256()
-
-    with open(file_path, "rb") as f:
-
-        for chunk in iter(
-            lambda: f.read(4096),
-            b""
-        ):
-
-            sha256.update(chunk)
-
-    return sha256.hexdigest()
-
-
-# ============================================================
-# BLOCKCHAIN
-# ============================================================
-
-def add_blockchain_record(
     username,
-    action,
-    document_hash="",
     details=""
 ):
 
-    global blockchain
+    logs = load_json(
+        AUDIT_FILE,
+        []
+    )
 
-    previous_hash = "GENESIS"
-
-    if blockchain:
-
-        previous_hash = blockchain[-1]["block_hash"]
-
-    block = {
-
-        "block_id":
-            len(blockchain) + 1,
-
-        "timestamp":
-            current_time(),
-
-        "username":
-            username,
-
-        "action":
-            action,
-
-        "document_hash":
-            document_hash,
-
-        "details":
-            details,
-
-        "previous_hash":
-            previous_hash
+    entry = {
+        "id": str(uuid.uuid4()),
+        "timestamp": datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        ),
+        "user": username,
+        "action": action,
+        "details": details
     }
 
-    raw = json.dumps(
-        block,
-        sort_keys=True
-    )
-
-    block["block_hash"] = hashlib.sha256(
-        raw.encode()
-    ).hexdigest()
-
-    blockchain.append(block)
+    logs.append(entry)
 
     save_json(
-        BLOCKCHAIN_FILE,
-        blockchain
+        AUDIT_FILE,
+        logs
     )
 
-
-# ============================================================
-# FIND DEPARTMENT HEAD
-# ============================================================
-
-def get_department_head(department):
-
-    for username, user in users.items():
-
-        if (
-            user.get("department") == department
-            and user.get("role") == "head"
-        ):
-
-            return username
-
-    return None
+    add_blockchain_block(entry)
 
 
 # ============================================================
-# SECURITY ALERT
+# SECURITY ALERTS
 # ============================================================
+
+DEPARTMENT_HEADS = {
+    "Police": "police_head",
+    "Forensic": "forensic_head",
+    "Legal": "legal_head",
+    "Investigation": "investigation_head",
+    "Court": "court_head",
+    "Security": "security_head"
+}
+
 
 def create_security_alert(
-    attempted_username,
-    department,
-    attempt_count
+    username,
+    department
 ):
 
-    global security_alerts
+    alerts = load_json(
+        ALERTS_FILE,
+        []
+    )
 
-    head_username = get_department_head(
-        department
+    assigned_to = DEPARTMENT_HEADS.get(
+        department,
+        "admin"
     )
 
     alert = {
-
-        "id":
-            generate_id("ALERT"),
-
-        "timestamp":
-            current_time(),
-
-        "attempted_username":
-            attempted_username,
-
-        "department":
-            department,
-
-        "attempt_count":
-            attempt_count,
-
-        "head_username":
-            head_username,
-
-        "message":
-            (
-                "More than 3 failed login attempts "
-                f"were detected for username "
-                f"'{attempted_username}' in the "
-                f"{department} department."
-            ),
-
-        "status":
-            "Unread"
+        "id": str(uuid.uuid4()),
+        "timestamp": datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        ),
+        "username": username,
+        "department": department,
+        "assigned_to": assigned_to,
+        "message": (
+            f"More than 3 failed login attempts "
+            f"detected for user '{username}'."
+        ),
+        "status": "UNREAD"
     }
 
-    security_alerts.append(alert)
+    alerts.append(alert)
 
     save_json(
         ALERTS_FILE,
-        security_alerts
+        alerts
     )
-
-    add_audit_log(
-        "SYSTEM",
-        "SECURITY_ALERT",
-        alert["message"],
-        department
-    )
-
-    add_blockchain_record(
-        "SYSTEM",
-        "SECURITY_ALERT",
-        details=alert["message"]
-    )
-
-
-# ============================================================
-# LOGIN ATTEMPT TRACKING
-# ============================================================
-
-def record_failed_login(username):
-
-    global login_attempts
-
-    if username not in login_attempts:
-
-        login_attempts[username] = {
-            "count": 0,
-            "last_attempt": ""
-        }
-
-    login_attempts[username]["count"] += 1
-
-    login_attempts[username]["last_attempt"] = (
-        current_time()
-    )
-
-    save_json(
-        LOGIN_ATTEMPTS_FILE,
-        login_attempts
-    )
-
-    return login_attempts[username]["count"]
-
-
-def reset_failed_login(username):
-
-    global login_attempts
-
-    if username in login_attempts:
-
-        login_attempts[username] = {
-            "count": 0,
-            "last_attempt": ""
-        }
-
-        save_json(
-            LOGIN_ATTEMPTS_FILE,
-            login_attempts
-        )
 
 
 # ============================================================
 # AUTHENTICATION
 # ============================================================
 
-def authenticate(
-    username,
-    password
-):
+def authenticate(username, password):
+
+    users = load_json(
+        USERS_FILE,
+        {}
+    )
+
+    attempts = load_json(
+        LOGIN_ATTEMPTS_FILE,
+        {}
+    )
 
     if username not in users:
-
-        return (
-            False,
-            "Invalid username or password."
-        )
+        return False
 
     user = users[username]
 
-    if not user.get("active", True):
+    if password == user["password"]:
 
-        return (
-            False,
-            "This account is disabled."
+        attempts[username] = 0
+
+        save_json(
+            LOGIN_ATTEMPTS_FILE,
+            attempts
         )
-
-    if password == user.get("password"):
-
-        reset_failed_login(username)
 
         add_audit_log(
+            "LOGIN SUCCESS",
             username,
-            "LOGIN_SUCCESS",
-            "Successful login.",
-            user["department"]
+            "Successful login."
         )
 
-        add_blockchain_record(
-            username,
-            "LOGIN_SUCCESS",
-            details="Successful login"
-        )
+        return True
 
-        return (
-            True,
-            "Login successful."
-        )
-
-    count = record_failed_login(
-        username
+    attempts[username] = (
+        attempts.get(username, 0) + 1
     )
 
-    department = user.get(
-        "department",
-        "Unknown"
+    save_json(
+        LOGIN_ATTEMPTS_FILE,
+        attempts
     )
 
-    if count > 3:
+    if attempts[username] > 3:
 
         create_security_alert(
             username,
-            department,
-            count
+            user["department"]
         )
 
-        return (
-            False,
-            "Incorrect password. "
-            f"Security alert created for "
-            f"{department} Department Head."
+        add_audit_log(
+            "SECURITY ALERT",
+            username,
+            "More than 3 failed login attempts."
         )
 
-    remaining = 4 - count
+    else:
 
-    return (
-        False,
-        f"Incorrect password. "
-        f"Failed attempt {count}. "
-        f"{remaining} attempt(s) remaining."
-    )
+        add_audit_log(
+            "LOGIN FAILED",
+            username,
+            f"Failed attempt #{attempts[username]}."
+        )
+
+    return False
 
 
 # ============================================================
-# SESSION
+# SESSION STATE
 # ============================================================
 
 if "logged_in" not in st.session_state:
-
     st.session_state.logged_in = False
 
 if "username" not in st.session_state:
-
     st.session_state.username = ""
 
-if "user" not in st.session_state:
-
-    st.session_state.user = None
+if "user_info" not in st.session_state:
+    st.session_state.user_info = {}
 
 
 # ============================================================
-# IMPROVED CSS
+# CSS
 # ============================================================
 
 st.markdown(
     """
     <style>
 
-    /* ================================
-       MAIN PAGE
-       ================================ */
+    /* MAIN BACKGROUND */
 
     .stApp {
         background-color: #07111F;
+        color: #FFFFFF;
     }
 
-    .main {
-        background-color: #07111F;
+    /* GENERAL TEXT */
+
+    .stApp p,
+    .stApp span,
+    .stApp label {
+        color: #FFFFFF !important;
     }
 
-    /* ================================
-       SIDEBAR
-       ================================ */
+    h1, h2, h3, h4, h5, h6 {
+        color: #FFFFFF !important;
+    }
+
+
+    /* SIDEBAR */
 
     section[data-testid="stSidebar"] {
-
         background-color: #0B1F33 !important;
-
     }
 
     section[data-testid="stSidebar"] * {
-
         color: #FFFFFF !important;
-
     }
 
-    section[data-testid="stSidebar"] h1,
-    section[data-testid="stSidebar"] h2,
-    section[data-testid="stSidebar"] h3 {
-
-        color: #35B9D6 !important;
-
-    }
-
-    /* Sidebar radio text */
-
-    section[data-testid="stSidebar"]
-    div[role="radiogroup"] label {
-
+    section[data-testid="stSidebar"] label {
         color: #FFFFFF !important;
-
-        background-color: transparent !important;
-
     }
 
-    section[data-testid="stSidebar"]
-    div[role="radiogroup"] label p {
-
+    section[data-testid="stSidebar"] p {
         color: #FFFFFF !important;
-
-        font-weight: 600 !important;
-
     }
 
-    /* Selected sidebar item */
 
-    section[data-testid="stSidebar"]
-    div[role="radiogroup"]
-    label[data-checked="true"] {
-
-        background-color: #174B67 !important;
-
-        border-radius: 8px;
-
-    }
-
-    /* ================================
-       ALL MAIN TEXT
-       ================================ */
-
-    .stApp p,
-    .stApp label,
-    .stApp span {
-
-        color: #FFFFFF;
-
-    }
-
-    .stApp h1,
-    .stApp h2,
-    .stApp h3,
-    .stApp h4 {
-
-        color: #FFFFFF !important;
-
-    }
-
-    /* ================================
-       INPUTS
-       ================================ */
+    /* INPUTS */
 
     input,
     textarea {
-
+        background-color: #102A43 !important;
         color: #FFFFFF !important;
-
-        background-color: #102B42 !important;
-
-        border: 1px solid #35728E !important;
-
+        border: 1px solid #245B78 !important;
     }
 
     input::placeholder,
     textarea::placeholder {
-
-        color: #A8C5D5 !important;
-
+        color: #A9C5D5 !important;
     }
 
-    /* ================================
-       SELECTBOX
-       ================================ */
 
-    div[data-baseweb="select"] {
+    /* SELECTBOX */
 
-        background-color: #102B42 !important;
-
+    div[data-baseweb="select"] > div {
+        background-color: #102A43 !important;
+        color: #FFFFFF !important;
     }
 
     div[data-baseweb="select"] * {
-
         color: #FFFFFF !important;
-
     }
 
-    /* ================================
-       BUTTONS
-       ================================ */
 
-    .stButton button {
+    /* BUTTONS */
 
-        background-color: #174B67 !important;
-
+    .stButton > button {
+        background-color: #176B87 !important;
         color: #FFFFFF !important;
-
         border: 1px solid #35B9D6 !important;
-
-        font-weight: bold;
-
+        font-weight: 700 !important;
+        border-radius: 8px !important;
     }
 
-    .stButton button:hover {
-
-        background-color: #226987 !important;
-
+    .stButton > button:hover {
+        background-color: #2186A5 !important;
         color: #FFFFFF !important;
-
     }
 
-    /* ================================
-       CARDS
-       ================================ */
+
+    /* CARDS */
 
     .security-card {
-
-        padding: 20px;
-
-        border-radius: 12px;
-
         background-color: #0D263A;
-
         border: 1px solid #245B78;
-
-        margin-bottom: 15px;
-
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
     }
 
     .security-title {
-
-        color: #35B9D6 !important;
-
-        font-size: 28px;
-
-        font-weight: bold;
-
+        color: #FFFFFF !important;
+        font-size: 30px;
+        font-weight: 800;
+        margin-bottom: 8px;
     }
 
     .security-subtitle {
-
         color: #D6EAF5 !important;
-
-        font-size: 15px;
-
+        font-size: 17px;
+        margin-bottom: 20px;
     }
 
-    /* ================================
-       METRICS
-       ================================ */
+
+    /* METRICS */
 
     div[data-testid="stMetric"] {
-
-        background-color: #0D263A;
-
-        padding: 15px;
-
-        border-radius: 10px;
-
-        border: 1px solid #245B78;
-
+        background-color: #0D263A !important;
+        border: 1px solid #245B78 !important;
+        border-radius: 10px !important;
+        padding: 15px !important;
     }
 
     div[data-testid="stMetric"] label {
-
-        color: #B9D5E5 !important;
-
+        color: #A9C5D5 !important;
     }
 
     div[data-testid="stMetric"] div {
-
         color: #FFFFFF !important;
-
     }
 
-    /* ================================
-       ALERT
-       ================================ */
 
-    .alert-box {
+    /* EXPANDERS */
 
-        padding: 15px;
-
-        border-radius: 10px;
-
-        background-color: #3A1820;
-
-        border-left: 5px solid #D9534F;
-
-        margin-bottom: 10px;
-
+    details {
+        background-color: #0D263A !important;
+        border: 1px solid #245B78 !important;
+        border-radius: 8px !important;
     }
 
-    /* ================================
-       EXPANDERS
-       ================================ */
-
-    .streamlit-expanderHeader {
-
-        background-color: #102B42 !important;
-
+    details summary {
         color: #FFFFFF !important;
-
     }
 
-    .streamlit-expanderHeader p {
 
+    /* FILE UPLOADER */
+
+    section[data-testid="stFileUploader"] {
+        background-color: #0D263A !important;
+        border: 1px solid #245B78 !important;
+        border-radius: 10px !important;
+    }
+
+    section[data-testid="stFileUploader"] * {
         color: #FFFFFF !important;
-
     }
 
-    /* ================================
-       FILE UPLOADER
-       ================================ */
 
-    [data-testid="stFileUploader"] {
+    /* ALERTS */
 
-        background-color: #102B42 !important;
-
-        border-radius: 10px;
-
-        padding: 10px;
-
-    }
-
-    [data-testid="stFileUploader"] * {
-
+    div[data-testid="stAlert"] * {
         color: #FFFFFF !important;
-
     }
 
-    /* ================================
-       INFO / SUCCESS / WARNING
-       ================================ */
 
-    .stAlert p {
+    /* TABLE */
 
+    table {
         color: #FFFFFF !important;
+    }
 
+    th {
+        background-color: #12344A !important;
+        color: #FFFFFF !important;
+    }
+
+    td {
+        background-color: #0D263A !important;
+        color: #FFFFFF !important;
     }
 
     </style>
@@ -966,293 +625,396 @@ st.markdown(
 
 
 # ============================================================
+# BACKGROUND
+# ============================================================
+
+def set_background(image_path):
+
+    if image_path.exists():
+
+        image = str(image_path).replace(
+            "\\",
+            "/"
+        )
+
+        st.markdown(
+            f"""
+            <style>
+
+            .stApp {{
+                background-image:
+                    linear-gradient(
+                        rgba(7,17,31,0.90),
+                        rgba(7,17,31,0.90)
+                    ),
+                    url("{image}");
+
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+            }}
+
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+# ============================================================
 # LOGIN PAGE
 # ============================================================
 
 def login_page():
 
-    st.markdown(
-        """
-        <h1 style="
-            text-align:center;
-            color:#35B9D6 !important;
-        ">
-        🔐 Secure Digital Document Management System
-        </h1>
-        """,
-        unsafe_allow_html=True
+    set_background(
+        POLICE_BG
     )
 
     st.markdown(
         """
-        <p style="
+        <div style="
+            max-width:850px;
+            margin:auto;
             text-align:center;
-            color:#D6EAF5 !important;
+            padding:50px 20px 20px 20px;
         ">
-        NCRB • Police • Investigation • Forensic • Legal • Court
-        </p>
+
+            <div style="
+                background:#0B1F33;
+                border:1px solid #35B9D6;
+                border-radius:20px;
+                padding:35px;
+            ">
+
+                <div style="font-size:55px;">
+                    🔐
+                </div>
+
+                <h1 style="
+                    color:#FFFFFF !important;
+                    font-size:34px;
+                ">
+                    Secure Digital Document Management System
+                </h1>
+
+                <p style="
+                    color:#D6EAF5 !important;
+                    font-size:18px;
+                ">
+                    Secure platform for police, legal,
+                    forensic and investigation documents
+                </p>
+
+            </div>
+
+        </div>
         """,
         unsafe_allow_html=True
     )
 
-    if os.path.exists(POLICE_BG):
-
-        st.image(
-            POLICE_BG,
-            use_container_width=True
-        )
-
-    col1, col2, col3 = st.columns(
+    left, center, right = st.columns(
         [1, 2, 1]
     )
 
-    with col2:
+    with center:
 
         st.markdown(
-            "<div class='security-card'>",
+            """
+            <div class="security-card">
+
+                <h2 style="
+                    color:#FFFFFF !important;
+                ">
+                    🔑 Login
+                </h2>
+
+                <p style="
+                    color:#D6EAF5 !important;
+                ">
+                    Enter your authorized credentials.
+                </p>
+
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
-        if os.path.exists(LOGO):
-
-            st.image(
-                LOGO,
-                width=120
-            )
-
-        st.subheader(
-            "Secure Login"
-        )
-
         username = st.text_input(
-            "Username",
-            placeholder="Enter username"
+            "User ID",
+            placeholder="Enter your User ID"
         )
 
         password = st.text_input(
             "Password",
             type="password",
-            placeholder="Enter password"
+            placeholder="Enter your password"
         )
 
         if st.button(
-            "🔓 Login",
+            "🔐 Login",
             use_container_width=True
         ):
 
             if not username or not password:
 
                 st.warning(
-                    "Please enter username and password."
+                    "Please enter both User ID and Password."
                 )
+
+            elif authenticate(
+                username,
+                password
+            ):
+
+                users = load_json(
+                    USERS_FILE,
+                    {}
+                )
+
+                st.session_state.logged_in = True
+                st.session_state.username = username
+                st.session_state.user_info = users[username]
+
+                st.rerun()
 
             else:
 
-                success, message = authenticate(
-                    username.strip(),
-                    password
+                st.error(
+                    "Invalid username or password."
                 )
-
-                if success:
-
-                    st.session_state.logged_in = True
-
-                    st.session_state.username = (
-                        username.strip()
-                    )
-
-                    st.session_state.user = users[
-                        username.strip()
-                    ]
-
-                    st.rerun()
-
-                else:
-
-                    st.error(message)
-
-        st.markdown(
-            "</div>",
-            unsafe_allow_html=True
-        )
 
 
 # ============================================================
 # SIDEBAR
 # ============================================================
 
-def sidebar():
+def show_sidebar():
 
-    user = st.session_state.user
+    user = st.session_state.user_info
 
-    st.sidebar.title(
-        "🔐 Secure DMS"
-    )
+    with st.sidebar:
 
-    if os.path.exists(LOGO):
+        if LOGO.exists():
 
-        st.sidebar.image(
-            LOGO,
-            width=120
+            st.image(
+                str(LOGO),
+                width=80
+            )
+
+        st.markdown(
+            """
+            <h2 style="
+                color:#FFFFFF !important;
+            ">
+                🔐 Secure DMS
+            </h2>
+            """,
+            unsafe_allow_html=True
         )
 
-    st.sidebar.markdown(
-        f"""
-        <div style="
-            color:#FFFFFF;
-            background:#102B42;
-            padding:12px;
-            border-radius:8px;
-        ">
-        <b>User:</b> {user['name']}<br>
-        <b>Department:</b> {user['department']}<br>
-        <b>Role:</b> {user['role'].upper()}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        st.markdown(
+            f"""
+            <div style="
+                background:#12344A;
+                border:1px solid #245B78;
+                border-radius:10px;
+                padding:14px;
+            ">
 
-    st.sidebar.divider()
+                <p style="color:#FFFFFF !important;">
+                    <b>User:</b> {user["name"]}
+                </p>
 
-    if st.sidebar.button(
-        "🚪 Logout",
-        use_container_width=True
-    ):
+                <p style="color:#FFFFFF !important;">
+                    <b>Department:</b> {user["department"]}
+                </p>
 
-        add_audit_log(
-            st.session_state.username,
-            "LOGOUT",
-            "User logged out.",
-            user["department"]
+                <p style="color:#FFFFFF !important;">
+                    <b>Role:</b> {user["role"]}
+                </p>
+
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
-        st.session_state.logged_in = False
-        st.session_state.username = ""
-        st.session_state.user = None
+        st.write("")
 
-        st.rerun()
+        if st.button(
+            "🚪 Logout",
+            use_container_width=True
+        ):
 
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+            st.session_state.user_info = {}
 
-# ============================================================
-# DASHBOARD HEADER
-# ============================================================
+            st.rerun()
 
-def dashboard_header():
+        st.markdown(
+            """
+            <p style="
+                color:#FFFFFF !important;
+                font-weight:700;
+                font-size:16px;
+                margin-top:20px;
+            ">
+                Navigation
+            </p>
+            """,
+            unsafe_allow_html=True
+        )
 
-    user = st.session_state.user
+        pages = [
+            "📊 Dashboard",
+            "📁 Cases",
+            "📄 Documents",
+            "🛡️ Integrity Verification",
+            "🔎 Search",
+            "⛓️ Blockchain Audit",
+            "ℹ️ System Information"
+        ]
 
-    st.markdown(
-        f"""
-        <div class="security-card">
+        if user["role"] in [
+            "ADMIN",
+            "HEAD"
+        ]:
 
-            <div class="security-title">
-                Secure Digital Document Management System
-            </div>
+            pages.append(
+                "🚨 Security Alerts"
+            )
 
-            <div class="security-subtitle">
+            pages.append(
+                "📋 Audit Trail"
+            )
 
-                Logged in as:
-                <b>{user['name']}</b>
+        if user["role"] == "ADMIN":
 
-                &nbsp; | &nbsp;
+            pages.append(
+                "👥 User Management"
+            )
 
-                Department:
-                <b>{user['department']}</b>
-
-                &nbsp; | &nbsp;
-
-                Role:
-                <b>{user['role'].upper()}</b>
-
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        return st.radio(
+            "Navigation",
+            pages,
+            label_visibility="collapsed"
+        )
 
 
 # ============================================================
 # DASHBOARD
 # ============================================================
 
-def overview_page():
+def dashboard_page():
 
-    st.header(
-        "📊 Dashboard"
+    department = st.session_state.user_info[
+        "department"
+    ]
+
+    if department == "Police":
+        set_background(POLICE_BG)
+
+    elif department == "Legal":
+        set_background(LEGAL_BG)
+
+    elif department == "Forensic":
+        set_background(FORENSIC_BG)
+
+    else:
+        set_background(POLICE_BG)
+
+    cases = load_json(
+        CASES_FILE,
+        []
     )
 
-    c1, c2, c3, c4 = st.columns(4)
-
-    c1.metric(
-        "Total Cases",
-        len(cases)
+    documents = load_json(
+        DOCUMENTS_FILE,
+        []
     )
 
-    c2.metric(
-        "Documents",
-        len(documents)
+    alerts = load_json(
+        ALERTS_FILE,
+        []
     )
 
-    c3.metric(
-        "Security Alerts",
-        len(security_alerts)
+    chain = load_json(
+        BLOCKCHAIN_FILE,
+        []
     )
 
-    c4.metric(
-        "Audit Events",
-        len(audit_logs)
+    st.markdown(
+        """
+        <div class="security-title">
+            🏠 Secure DMS Dashboard
+        </div>
+
+        <div class="security-subtitle">
+            Secure Digital Document Management System
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-    st.divider()
+    col1, col2, col3, col4 = st.columns(4)
 
-    user = st.session_state.user
+    with col1:
+        st.metric(
+            "📁 Total Cases",
+            len(cases)
+        )
 
-    if user["department"] == "Police":
+    with col2:
+        st.metric(
+            "📄 Documents",
+            len(documents)
+        )
 
-        if os.path.exists(POLICE_BG):
+    with col3:
+        st.metric(
+            "🚨 Security Alerts",
+            len(alerts)
+        )
 
-            st.image(
-                POLICE_BG,
-                use_container_width=True
-            )
+    with col4:
+        st.metric(
+            "⛓️ Blockchain Blocks",
+            len(chain)
+        )
 
-    elif user["department"] == "Legal":
+    st.write("")
 
-        if os.path.exists(LEGAL_BG):
+    st.markdown(
+        """
+        <div class="security-card">
 
-            st.image(
-                LEGAL_BG,
-                use_container_width=True
-            )
+            <h3 style="color:#FFFFFF !important;">
+                🔐 Security Features
+            </h3>
 
-    elif user["department"] == "Forensic":
+            <p style="color:#FFFFFF !important;">
+                ✓ Role-based authentication
+            </p>
 
-        if os.path.exists(FORENSIC_BG):
+            <p style="color:#FFFFFF !important;">
+                ✓ SHA-256 document integrity verification
+            </p>
 
-            st.image(
-                FORENSIC_BG,
-                use_container_width=True
-            )
+            <p style="color:#FFFFFF !important;">
+                ✓ Blockchain-style audit trail
+            </p>
 
-    st.subheader(
-        "🔒 Security Status"
-    )
+            <p style="color:#FFFFFF !important;">
+                ✓ Failed-login security alerts
+            </p>
 
-    st.success(
-        "SHA-256 document integrity verification: ENABLED"
-    )
+            <p style="color:#FFFFFF !important;">
+                ✓ Secure case and document management
+            </p>
 
-    st.success(
-        "Audit logging: ENABLED"
-    )
-
-    st.success(
-        "Blockchain-style audit chain: ENABLED"
-    )
-
-    st.success(
-        "Failed-login monitoring: ENABLED"
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
@@ -1262,75 +1024,86 @@ def overview_page():
 
 def cases_page():
 
-    st.header(
-        "📁 Cases"
+    st.title("📁 Cases")
+
+    cases = load_json(
+        CASES_FILE,
+        []
     )
 
     with st.expander(
-        "➕ Create New Case"
+        "➕ Create New Case",
+        expanded=True
     ):
 
-        case_number = st.text_input(
-            "Case Number"
+        case_id = st.text_input(
+            "Case ID",
+            placeholder="Example: CASE-001"
         )
 
         title = st.text_input(
             "Case Title"
         )
 
-        description = st.text_area(
-            "Case Description"
-        )
-
         department = st.selectbox(
             "Department",
             [
                 "Police",
-                "Investigation",
                 "Forensic",
                 "Legal",
-                "Court"
+                "Investigation",
+                "Court",
+                "Security"
             ]
         )
 
+        priority = st.selectbox(
+            "Priority",
+            [
+                "Low",
+                "Medium",
+                "High",
+                "Critical"
+            ]
+        )
+
+        description = st.text_area(
+            "Case Description"
+        )
+
         if st.button(
-            "Create Case",
+            "➕ Create Case",
             use_container_width=True
         ):
 
-            if not case_number or not title:
+            if not case_id or not title:
 
-                st.warning(
-                    "Case number and title are required."
+                st.error(
+                    "Please enter Case ID and Case Title."
+                )
+
+            elif any(
+                case["case_id"] == case_id
+                for case in cases
+            ):
+
+                st.error(
+                    "This Case ID already exists."
                 )
 
             else:
 
                 new_case = {
-
-                    "case_id":
-                        generate_id("CASE"),
-
-                    "case_number":
-                        case_number,
-
-                    "title":
-                        title,
-
-                    "description":
-                        description,
-
-                    "department":
-                        department,
-
-                    "created_by":
-                        st.session_state.username,
-
-                    "created_at":
-                        current_time(),
-
-                    "status":
-                        "Open"
+                    "case_id": case_id,
+                    "title": title,
+                    "department": department,
+                    "priority": priority,
+                    "description": description,
+                    "created_by": st.session_state.username,
+                    "created_at": datetime.now().strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
+                    "status": "Open"
                 }
 
                 cases.append(
@@ -1343,60 +1116,53 @@ def cases_page():
                 )
 
                 add_audit_log(
+                    "CASE CREATED",
                     st.session_state.username,
-                    "CREATE_CASE",
-                    f"Created case {case_number}",
-                    st.session_state.user["department"]
-                )
-
-                add_blockchain_record(
-                    st.session_state.username,
-                    "CREATE_CASE",
-                    details=case_number
+                    f"Case {case_id} created."
                 )
 
                 st.success(
-                    "Case created successfully."
+                    f"Case {case_id} created successfully."
                 )
 
-                st.rerun()
-
     st.subheader(
-        "Registered Cases"
+        "📂 Existing Cases"
     )
 
     if not cases:
 
         st.info(
-            "No cases available."
+            "No cases have been created yet."
         )
 
-        return
-
-    for case in cases:
+    for case in reversed(cases):
 
         with st.expander(
-            f"{case['case_number']} — {case['title']}"
+            f'📁 {case["case_id"]} — {case["title"]}'
         ):
 
             st.write(
-                f"**Case ID:** {case['case_id']}"
+                f'**Department:** {case["department"]}'
             )
 
             st.write(
-                f"**Department:** {case['department']}"
+                f'**Priority:** {case["priority"]}'
             )
 
             st.write(
-                f"**Status:** {case['status']}"
+                f'**Status:** {case["status"]}'
             )
 
             st.write(
-                f"**Created:** {case['created_at']}"
+                f'**Created By:** {case["created_by"]}'
             )
 
             st.write(
-                f"**Description:** {case['description']}"
+                f'**Created At:** {case["created_at"]}'
+            )
+
+            st.write(
+                f'**Description:** {case["description"]}'
             )
 
 
@@ -1406,120 +1172,118 @@ def cases_page():
 
 def documents_page():
 
-    st.header(
-        "📄 Secure Documents"
+    st.title("📄 Documents")
+
+    cases = load_json(
+        CASES_FILE,
+        []
+    )
+
+    documents = load_json(
+        DOCUMENTS_FILE,
+        []
     )
 
     if not cases:
 
         st.warning(
-            "Create a case before uploading documents."
+            "Create a case first."
         )
 
         return
 
-    case_options = [
-        f"{c['case_number']} | {c['title']}"
-        for c in cases
+    case_ids = [
+        case["case_id"]
+        for case in cases
     ]
 
     selected_case = st.selectbox(
         "Select Case",
-        case_options
+        case_ids
     )
 
     uploaded_file = st.file_uploader(
-        "Upload Document",
+        "Upload Case Document",
         type=[
             "pdf",
             "docx",
-            "doc",
             "txt",
             "jpg",
             "jpeg",
-            "png",
-            "xlsx"
-        ]
-    )
-
-    classification = st.selectbox(
-        "Classification",
-        [
-            "Confidential",
-            "Highly Confidential",
-            "Evidence",
-            "Legal Document",
-            "Investigation Report",
-            "Forensic Report"
+            "png"
         ]
     )
 
     if uploaded_file:
 
+        file_bytes = uploaded_file.getvalue()
+
+        file_hash = calculate_hash(
+            file_bytes
+        )
+
+        st.markdown(
+            f"""
+            <div class="security-card">
+
+                <h3 style="color:#FFFFFF !important;">
+                    📄 Document Information
+                </h3>
+
+                <p style="color:#FFFFFF !important;">
+                    <b>File:</b> {uploaded_file.name}
+                </p>
+
+                <p style="color:#FFFFFF !important;">
+                    <b>Size:</b> {len(file_bytes)} bytes
+                </p>
+
+                <p style="
+                    color:#7DE2A7 !important;
+                    word-break:break-all;
+                ">
+                    <b>SHA-256:</b> {file_hash}
+                </p>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
         if st.button(
-            "🔒 Secure Upload",
+            "🔒 Securely Store Document",
             use_container_width=True
         ):
 
-            safe_name = (
-                uuid.uuid4().hex
+            stored_name = (
+                str(uuid.uuid4())
                 + "_"
                 + uploaded_file.name
             )
 
-            save_path = (
-                UPLOAD_DIR /
-                safe_name
+            stored_path = (
+                UPLOADS_DIR / stored_name
             )
 
             with open(
-                save_path,
+                stored_path,
                 "wb"
-            ) as f:
+            ) as file:
 
-                f.write(
-                    uploaded_file.getbuffer()
+                file.write(
+                    file_bytes
                 )
 
-            document_hash = hash_file(
-                save_path
-            )
-
-            case_number = selected_case.split(
-                " | "
-            )[0]
-
             document = {
-
-                "document_id":
-                    generate_id("DOC"),
-
-                "case_number":
-                    case_number,
-
-                "original_filename":
-                    uploaded_file.name,
-
-                "stored_filename":
-                    safe_name,
-
-                "classification":
-                    classification,
-
-                "uploaded_by":
-                    st.session_state.username,
-
-                "department":
-                    st.session_state.user["department"],
-
-                "uploaded_at":
-                    current_time(),
-
-                "sha256":
-                    document_hash,
-
-                "status":
-                    "Verified"
+                "document_id": str(uuid.uuid4()),
+                "case_id": selected_case,
+                "file_name": uploaded_file.name,
+                "stored_file": stored_name,
+                "sha256": file_hash,
+                "uploaded_by": st.session_state.username,
+                "uploaded_at": datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
             }
 
             documents.append(
@@ -1532,142 +1296,344 @@ def documents_page():
             )
 
             add_audit_log(
+                "DOCUMENT UPLOADED",
                 st.session_state.username,
-                "DOCUMENT_UPLOAD",
-                uploaded_file.name,
-                st.session_state.user["department"]
-            )
-
-            add_blockchain_record(
-                st.session_state.username,
-                "DOCUMENT_UPLOAD",
-                document_hash,
-                uploaded_file.name
+                f"{uploaded_file.name} uploaded."
             )
 
             st.success(
-                "Document uploaded successfully."
+                "Document securely stored."
             )
-
-            st.write(
-                "SHA-256:"
-            )
-
-            st.code(
-                document_hash
-            )
-
-    st.divider()
 
     st.subheader(
-        "Stored Documents"
+        "📚 Stored Documents"
     )
 
-    for document in documents:
+    for document in reversed(documents):
 
-        with st.expander(
-            document["original_filename"]
-        ):
+        st.markdown(
+            f"""
+            <div class="security-card">
 
-            st.write(
-                f"**Case:** {document['case_number']}"
-            )
+                <h3 style="color:#FFFFFF !important;">
+                    📄 {document["file_name"]}
+                </h3>
 
-            st.write(
-                f"**Classification:** "
-                f"{document['classification']}"
-            )
+                <p style="color:#FFFFFF !important;">
+                    <b>Case:</b> {document["case_id"]}
+                </p>
 
-            st.write(
-                f"**Uploaded By:** "
-                f"{document['uploaded_by']}"
-            )
+                <p style="color:#FFFFFF !important;">
+                    <b>Uploaded By:</b>
+                    {document["uploaded_by"]}
+                </p>
 
-            st.write(
-                f"**Department:** "
-                f"{document['department']}"
-            )
+                <p style="
+                    color:#7DE2A7 !important;
+                    word-break:break-all;
+                ">
+                    <b>SHA-256:</b>
+                    {document["sha256"]}
+                </p>
 
-            st.code(
-                document["sha256"]
-            )
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 
 # ============================================================
-# INTEGRITY
+# INTEGRITY VERIFICATION
 # ============================================================
 
 def integrity_page():
 
-    st.header(
-        "🛡️ Document Integrity Verification"
+    st.title(
+        "🛡️ Integrity Verification"
+    )
+
+    documents = load_json(
+        DOCUMENTS_FILE,
+        []
     )
 
     if not documents:
 
         st.info(
-            "No documents available."
+            "No documents are available."
         )
 
         return
+
+    choices = [
+        f'{doc["file_name"]} — {doc["case_id"]}'
+        for doc in documents
+    ]
 
     selected = st.selectbox(
         "Select Document",
-        [
-            d["original_filename"]
-            for d in documents
-        ]
+        choices
     )
 
-    document = next(
-        d for d in documents
-        if d["original_filename"] == selected
+    index = choices.index(
+        selected
     )
 
-    path = (
-        UPLOAD_DIR /
-        document["stored_filename"]
+    document = documents[index]
+
+    file_path = (
+        UPLOADS_DIR /
+        document["stored_file"]
     )
 
-    if not path.exists():
+    st.markdown(
+        f"""
+        <div class="security-card">
+
+            <h3 style="color:#FFFFFF !important;">
+                🔐 Original Document Hash
+            </h3>
+
+            <p style="
+                color:#7DE2A7 !important;
+                word-break:break-all;
+            ">
+                {document["sha256"]}
+            </p>
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    if not file_path.exists():
 
         st.error(
-            "Document file is missing."
+            "Stored document could not be found."
         )
 
         return
 
-    current_hash = hash_file(
-        path
+    with open(
+        file_path,
+        "rb"
+    ) as file:
+
+        current_bytes = file.read()
+
+    current_hash = calculate_hash(
+        current_bytes
     )
 
-    st.write(
-        "**Original SHA-256:**"
-    )
+    st.markdown(
+        f"""
+        <div class="security-card">
 
-    st.code(
-        document["sha256"]
-    )
+            <h3 style="color:#FFFFFF !important;">
+                🔍 Current Document Hash
+            </h3>
 
-    st.write(
-        "**Current SHA-256:**"
-    )
+            <p style="
+                color:#FFFFFF !important;
+                word-break:break-all;
+            ">
+                {current_hash}
+            </p>
 
-    st.code(
-        current_hash
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
     if current_hash == document["sha256"]:
 
         st.success(
-            "✅ DOCUMENT INTEGRITY VERIFIED"
+            "🟢 INTEGRITY VERIFIED — Document has not been changed."
         )
 
     else:
 
         st.error(
-            "🚨 DOCUMENT MAY HAVE BEEN MODIFIED"
+            "🔴 INTEGRITY FAILED — Document has been changed."
         )
+
+
+# ============================================================
+# SEARCH
+# ============================================================
+
+def search_page():
+
+    st.title("🔎 Search")
+
+    term = st.text_input(
+        "Search cases or documents",
+        placeholder="Enter case ID, document name, department..."
+    )
+
+    if not term:
+
+        st.info(
+            "Enter a search term."
+        )
+
+        return
+
+    term = term.lower()
+
+    cases = load_json(
+        CASES_FILE,
+        []
+    )
+
+    documents = load_json(
+        DOCUMENTS_FILE,
+        []
+    )
+
+    matching_cases = [
+        case
+        for case in cases
+        if term in json.dumps(
+            case
+        ).lower()
+    ]
+
+    matching_documents = [
+        document
+        for document in documents
+        if term in json.dumps(
+            document
+        ).lower()
+    ]
+
+    st.subheader(
+        f"📁 Cases Found: {len(matching_cases)}"
+    )
+
+    for case in matching_cases:
+
+        st.markdown(
+            f"""
+            <div class="security-card">
+
+                <h3 style="color:#FFFFFF !important;">
+                    📁 {case["case_id"]}
+                </h3>
+
+                <p style="color:#FFFFFF !important;">
+                    <b>Title:</b> {case["title"]}
+                </p>
+
+                <p style="color:#FFFFFF !important;">
+                    <b>Department:</b>
+                    {case["department"]}
+                </p>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    st.subheader(
+        f"📄 Documents Found: {len(matching_documents)}"
+    )
+
+    for document in matching_documents:
+
+        st.markdown(
+            f"""
+            <div class="security-card">
+
+                <h3 style="color:#FFFFFF !important;">
+                    📄 {document["file_name"]}
+                </h3>
+
+                <p style="color:#FFFFFF !important;">
+                    <b>Case:</b>
+                    {document["case_id"]}
+                </p>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+# ============================================================
+# BLOCKCHAIN AUDIT
+# ============================================================
+
+def blockchain_page():
+
+    st.title(
+        "⛓️ Blockchain Audit"
+    )
+
+    chain = load_json(
+        BLOCKCHAIN_FILE,
+        []
+    )
+
+    if not chain:
+
+        st.info(
+            "No blockchain audit blocks yet."
+        )
+
+        return
+
+    st.markdown(
+        """
+        <div class="security-card">
+
+            <h3 style="color:#FFFFFF !important;">
+                ⛓️ Hash-Linked Audit Chain
+            </h3>
+
+            <p style="color:#FFFFFF !important;">
+                Every activity creates an audit block.
+                Each block contains the hash of the
+                previous block, making the audit trail
+                tamper-evident.
+            </p>
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    for block in reversed(chain):
+
+        with st.expander(
+            f'Block #{block["block_number"]} — {block["action"]}'
+        ):
+
+            st.write(
+                f'**Time:** {block["timestamp"]}'
+            )
+
+            st.write(
+                f'**User:** {block["user"]}'
+            )
+
+            st.write(
+                f'**Action:** {block["action"]}'
+            )
+
+            st.write(
+                f'**Details:** {block["details"]}'
+            )
+
+            st.code(
+                "Previous Hash:\n"
+                + block["previous_hash"]
+            )
+
+            st.code(
+                "Current Hash:\n"
+                + block["current_hash"]
+            )
 
 
 # ============================================================
@@ -1676,41 +1642,34 @@ def integrity_page():
 
 def security_alerts_page():
 
-    st.header(
+    st.title(
         "🚨 Security Alerts"
     )
 
-    user = st.session_state.user
+    alerts = load_json(
+        ALERTS_FILE,
+        []
+    )
 
-    if user["role"] == "admin":
+    username = st.session_state.username
+    role = st.session_state.user_info["role"]
 
-        visible_alerts = security_alerts
+    if role == "ADMIN":
 
-    elif user["role"] == "head":
-
-        visible_alerts = [
-
-            alert
-            for alert in security_alerts
-
-            if alert["head_username"]
-            == st.session_state.username
-
-        ]
+        visible_alerts = alerts
 
     else:
 
-        st.info(
-            "Only administrators and department heads "
-            "can view security alerts."
-        )
-
-        return
+        visible_alerts = [
+            alert
+            for alert in alerts
+            if alert["assigned_to"] == username
+        ]
 
     if not visible_alerts:
 
         st.success(
-            "No security alerts."
+            "No security alerts assigned to you."
         )
 
         return
@@ -1721,27 +1680,44 @@ def security_alerts_page():
 
         st.markdown(
             f"""
-            <div class="alert-box">
+            <div style="
+                background:#351B22;
+                border:1px solid #9B404A;
+                border-radius:10px;
+                padding:18px;
+                margin-bottom:15px;
+            ">
 
-            <b style="color:#FFFFFF;">
-            🚨 SECURITY ALERT
-            </b>
+                <h3 style="
+                    color:#FFB4B4 !important;
+                ">
+                    🚨 Security Alert
+                </h3>
 
-            <br><br>
+                <p style="color:#FFFFFF !important;">
+                    <b>Time:</b>
+                    {alert["timestamp"]}
+                </p>
 
-            <span style="color:#FFFFFF;">
-            <b>Alert ID:</b> {alert['id']}<br>
-            <b>Time:</b> {alert['timestamp']}<br>
-            <b>Department:</b> {alert['department']}<br>
-            <b>Username:</b> {alert['attempted_username']}<br>
-            <b>Failed Attempts:</b> {alert['attempt_count']}
-            </span>
+                <p style="color:#FFFFFF !important;">
+                    <b>User:</b>
+                    {alert["username"]}
+                </p>
 
-            <br><br>
+                <p style="color:#FFFFFF !important;">
+                    <b>Department:</b>
+                    {alert["department"]}
+                </p>
 
-            <span style="color:#FFFFFF;">
-            {alert['message']}
-            </span>
+                <p style="color:#FFFFFF !important;">
+                    <b>Assigned To:</b>
+                    {alert["assigned_to"]}
+                </p>
+
+                <p style="color:#FFFFFF !important;">
+                    <b>Message:</b>
+                    {alert["message"]}
+                </p>
 
             </div>
             """,
@@ -1750,107 +1726,44 @@ def security_alerts_page():
 
 
 # ============================================================
-# AUDIT
+# AUDIT TRAIL
 # ============================================================
 
 def audit_page():
 
-    st.header(
-        "🧾 Audit Trail"
+    st.title(
+        "📋 Audit Trail"
     )
 
-    if not audit_logs:
+    logs = load_json(
+        AUDIT_FILE,
+        []
+    )
+
+    if not logs:
 
         st.info(
-            "No audit records."
+            "No audit activity yet."
         )
 
         return
 
-    for log in reversed(
-        audit_logs
-    ):
-
-        st.markdown(
-            f"""
-            <div class="security-card">
-
-            <span style="color:#35B9D6;">
-            <b>{log['action']}</b>
-            </span>
-
-            <br><br>
-
-            <span style="color:#FFFFFF;">
-            Time: {log['timestamp']}<br>
-            User: {log['username']}<br>
-            Department: {log['department']}<br>
-            Description: {log['description']}
-            </span>
-
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-
-# ============================================================
-# BLOCKCHAIN
-# ============================================================
-
-def blockchain_page():
-
-    st.header(
-        "⛓️ Blockchain Audit Chain"
-    )
-
-    if not blockchain:
-
-        st.info(
-            "No blockchain records."
-        )
-
-        return
-
-    for block in reversed(
-        blockchain
-    ):
+    for log in reversed(logs):
 
         with st.expander(
-            f"Block #{block['block_id']} "
-            f"— {block['action']}"
+            f'{log["timestamp"]} — {log["action"]}'
         ):
 
             st.write(
-                f"Timestamp: {block['timestamp']}"
+                f'**User:** {log["user"]}'
             )
 
             st.write(
-                f"User: {block['username']}"
+                f'**Action:** {log["action"]}'
             )
 
             st.write(
-                f"Action: {block['action']}"
-            )
-
-            st.write(
-                f"Details: {block['details']}"
-            )
-
-            st.write(
-                "Previous Hash:"
-            )
-
-            st.code(
-                block["previous_hash"]
-            )
-
-            st.write(
-                "Block Hash:"
-            )
-
-            st.code(
-                block["block_hash"]
+                f'**Details:** {log["details"]}'
             )
 
 
@@ -1860,38 +1773,41 @@ def blockchain_page():
 
 def user_management_page():
 
-    st.header(
+    st.title(
         "👥 User Management"
     )
 
-    if st.session_state.user["role"] != "admin":
+    users = load_json(
+        USERS_FILE,
+        {}
+    )
 
-        st.error(
-            "Administrator access required."
-        )
+    st.write(
+        f"Total users: **{len(users)}**"
+    )
 
-        return
-
-    for username, account in users.items():
+    for username, user in users.items():
 
         st.markdown(
             f"""
             <div class="security-card">
 
-            <span style="color:#FFFFFF;">
+                <h3 style="color:#FFFFFF !important;">
+                    👤 {user["name"]}
+                </h3>
 
-            <b>{account['name']}</b><br><br>
+                <p style="color:#FFFFFF !important;">
+                    <b>User ID:</b> {username}
+                </p>
 
-            Username: {username}<br>
+                <p style="color:#FFFFFF !important;">
+                    <b>Department:</b>
+                    {user["department"]}
+                </p>
 
-            Department: {account['department']}<br>
-
-            Role: {account['role'].upper()}<br>
-
-            Status:
-            {"Active" if account["active"] else "Disabled"}
-
-            </span>
+                <p style="color:#FFFFFF !important;">
+                    <b>Role:</b> {user["role"]}
+                </p>
 
             </div>
             """,
@@ -1900,86 +1816,12 @@ def user_management_page():
 
 
 # ============================================================
-# SEARCH
-# ============================================================
-
-def search_page():
-
-    st.header(
-        "🔎 Secure Search"
-    )
-
-    query = st.text_input(
-        "Search cases or documents"
-    )
-
-    if not query:
-
-        st.info(
-            "Enter a search term."
-        )
-
-        return
-
-    query = query.lower()
-
-    st.subheader(
-        "Cases"
-    )
-
-    found_case = False
-
-    for case in cases:
-
-        if query in json.dumps(
-            case
-        ).lower():
-
-            found_case = True
-
-            st.write(
-                f"📁 {case['case_number']} "
-                f"— {case['title']}"
-            )
-
-    if not found_case:
-
-        st.write(
-            "No matching cases."
-        )
-
-    st.subheader(
-        "Documents"
-    )
-
-    found_document = False
-
-    for document in documents:
-
-        if query in json.dumps(
-            document
-        ).lower():
-
-            found_document = True
-
-            st.write(
-                f"📄 {document['original_filename']}"
-            )
-
-    if not found_document:
-
-        st.write(
-            "No matching documents."
-        )
-
-
-# ============================================================
-# SYSTEM INFO
+# SYSTEM INFORMATION
 # ============================================================
 
 def system_info_page():
 
-    st.header(
+    st.title(
         "ℹ️ System Information"
     )
 
@@ -1987,146 +1829,110 @@ def system_info_page():
         """
         <div class="security-card">
 
-        <h3 style="color:#35B9D6 !important;">
-        Secure Digital Document Management System
-        </h3>
+            <h2 style="color:#FFFFFF !important;">
+                🔐 Secure Digital Document Management System
+            </h2>
 
-        <p style="color:#FFFFFF !important;">
-        <b>Problem Statement:</b> 26190
-        </p>
+            <p style="color:#FFFFFF !important;">
+                <b>Version:</b> 1.0
+            </p>
 
-        <p style="color:#FFFFFF !important;">
-        <b>Theme:</b> Blockchain & Cybersecurity
-        </p>
+            <p style="color:#FFFFFF !important;">
+                <b>Technology:</b> Python + Streamlit
+            </p>
 
-        <p style="color:#FFFFFF !important;">
-        A secure digital document management platform
-        for police, investigation, forensic, legal and
-        court departments.
-        </p>
-
-        <h4 style="color:#35B9D6 !important;">
-        Security Features
-        </h4>
-
-        <p style="color:#FFFFFF !important;">
-        • Role-based authentication<br>
-        • Department-based access<br>
-        • Failed-login monitoring<br>
-        • Department-head alerts<br>
-        • SHA-256 document hashing<br>
-        • Document integrity verification<br>
-        • Audit logging<br>
-        • Tamper-evident blockchain-style records<br>
-        • Secure document storage<br>
-        • Case management
-        </p>
+            <p style="color:#FFFFFF !important;">
+                <b>Security:</b> SHA-256 + Audit Chain
+            </p>
 
         </div>
         """,
         unsafe_allow_html=True
     )
 
+    col1, col2 = st.columns(2)
 
-# ============================================================
-# MAIN DASHBOARD
-# ============================================================
+    with col1:
 
-def dashboard():
+        st.markdown(
+            """
+            <div class="security-card">
 
-    sidebar()
+                <h3 style="color:#FFFFFF !important;">
+                    🛡️ Security
+                </h3>
 
-    dashboard_header()
+                <p style="color:#FFFFFF !important;">
+                    ✓ Role-based authentication
+                </p>
 
-    user = st.session_state.user
+                <p style="color:#FFFFFF !important;">
+                    ✓ SHA-256 document hashing
+                </p>
 
-    menu = [
+                <p style="color:#FFFFFF !important;">
+                    ✓ Integrity verification
+                </p>
 
-        "📊 Dashboard",
+                <p style="color:#FFFFFF !important;">
+                    ✓ Blockchain-style audit
+                </p>
 
-        "📁 Cases",
+                <p style="color:#FFFFFF !important;">
+                    ✓ Failed login detection
+                </p>
 
-        "📄 Documents",
+                <p style="color:#FFFFFF !important;">
+                    ✓ Department security alerts
+                </p>
 
-        "🛡️ Integrity Verification",
-
-        "🔎 Search",
-
-        "⛓️ Blockchain Audit",
-
-        "ℹ️ System Information"
-    ]
-
-    if user["role"] in [
-        "admin",
-        "head"
-    ]:
-
-        menu.insert(
-            5,
-            "🚨 Security Alerts"
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
-        menu.insert(
-            6,
-            "🧾 Audit Trail"
+    with col2:
+
+        st.markdown(
+            """
+            <div class="security-card">
+
+                <h3 style="color:#FFFFFF !important;">
+                    🏢 Departments
+                </h3>
+
+                <p style="color:#FFFFFF !important;">
+                    ✓ Police
+                </p>
+
+                <p style="color:#FFFFFF !important;">
+                    ✓ Forensic
+                </p>
+
+                <p style="color:#FFFFFF !important;">
+                    ✓ Legal
+                </p>
+
+                <p style="color:#FFFFFF !important;">
+                    ✓ Investigation
+                </p>
+
+                <p style="color:#FFFFFF !important;">
+                    ✓ Court
+                </p>
+
+                <p style="color:#FFFFFF !important;">
+                    ✓ Security
+                </p>
+
+            </div>
+            """,
+            unsafe_allow_html=True
         )
-
-    if user["role"] == "admin":
-
-        menu.insert(
-            7,
-            "👥 User Management"
-        )
-
-    selected = st.sidebar.radio(
-        "Navigation",
-        menu
-    )
-
-    if selected == "📊 Dashboard":
-
-        overview_page()
-
-    elif selected == "📁 Cases":
-
-        cases_page()
-
-    elif selected == "📄 Documents":
-
-        documents_page()
-
-    elif selected == "🛡️ Integrity Verification":
-
-        integrity_page()
-
-    elif selected == "🔎 Search":
-
-        search_page()
-
-    elif selected == "🚨 Security Alerts":
-
-        security_alerts_page()
-
-    elif selected == "🧾 Audit Trail":
-
-        audit_page()
-
-    elif selected == "⛓️ Blockchain Audit":
-
-        blockchain_page()
-
-    elif selected == "👥 User Management":
-
-        user_management_page()
-
-    elif selected == "ℹ️ System Information":
-
-        system_info_page()
 
 
 # ============================================================
-# START APPLICATION
+# MAIN PROGRAM
 # ============================================================
 
 if not st.session_state.logged_in:
@@ -2134,4 +1940,35 @@ if not st.session_state.logged_in:
     login_page()
 
 else:
-    dashboard()
+
+    selected_page = show_sidebar()
+
+    if selected_page == "📊 Dashboard":
+        dashboard_page()
+
+    elif selected_page == "📁 Cases":
+        cases_page()
+
+    elif selected_page == "📄 Documents":
+        documents_page()
+
+    elif selected_page == "🛡️ Integrity Verification":
+        integrity_page()
+
+    elif selected_page == "🔎 Search":
+        search_page()
+
+    elif selected_page == "⛓️ Blockchain Audit":
+        blockchain_page()
+
+    elif selected_page == "🚨 Security Alerts":
+        security_alerts_page()
+
+    elif selected_page == "📋 Audit Trail":
+        audit_page()
+
+    elif selected_page == "👥 User Management":
+        user_management_page()
+
+    elif selected_page == "ℹ️ System Information":
+        system_info_page()
