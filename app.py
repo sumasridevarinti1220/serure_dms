@@ -4,10 +4,11 @@ import json
 import hashlib
 import uuid
 from datetime import datetime
+from textwrap import dedent
 
 
 # ============================================================
-# PAGE CONFIGURATION
+# PAGE CONFIG
 # ============================================================
 
 st.set_page_config(
@@ -19,7 +20,7 @@ st.set_page_config(
 
 
 # ============================================================
-# PROJECT PATHS
+# PATHS
 # ============================================================
 
 BASE_DIR = Path(__file__).parent
@@ -32,12 +33,10 @@ ASSETS_DIR.mkdir(exist_ok=True)
 DATA_DIR.mkdir(exist_ok=True)
 UPLOADS_DIR.mkdir(exist_ok=True)
 
-
 POLICE_BG = ASSETS_DIR / "police_background.jpg"
 LEGAL_BG = ASSETS_DIR / "legal_background.jpg"
 FORENSIC_BG = ASSETS_DIR / "forensic_background.jpg"
 LOGO = ASSETS_DIR / "logo.png"
-
 
 USERS_FILE = DATA_DIR / "users.json"
 CASES_FILE = DATA_DIR / "cases.json"
@@ -53,7 +52,6 @@ LOGIN_ATTEMPTS_FILE = DATA_DIR / "login_attempts.json"
 # ============================================================
 
 DEFAULT_USERS = {
-
     "admin": {
         "password": "Admin@2026",
         "name": "System Administrator",
@@ -148,6 +146,21 @@ DEFAULT_USERS = {
 
 
 # ============================================================
+# SAFE HTML RENDERER
+# ============================================================
+
+def render_html(content):
+    """
+    Removes Python indentation before sending HTML to Streamlit.
+    This prevents Streamlit from displaying HTML as a code block.
+    """
+    st.markdown(
+        dedent(content),
+        unsafe_allow_html=True
+    )
+
+
+# ============================================================
 # JSON FUNCTIONS
 # ============================================================
 
@@ -164,20 +177,28 @@ def load_json(path, default):
 
 def save_json(path, data):
     with open(path, "w", encoding="utf-8") as file:
-        json.dump(data, file, indent=4, ensure_ascii=False)
+        json.dump(
+            data,
+            file,
+            indent=4,
+            ensure_ascii=False
+        )
 
 
 # ============================================================
-# INITIALIZE DATABASE
+# DATABASE INITIALIZATION
 # ============================================================
 
 def initialize_database():
 
-    users = load_json(USERS_FILE, {})
+    users = load_json(
+        USERS_FILE,
+        {}
+    )
 
     changed = False
 
-    # Add missing default accounts without deleting existing data
+    # Add missing accounts automatically
     for username, account in DEFAULT_USERS.items():
 
         if username not in users:
@@ -185,7 +206,10 @@ def initialize_database():
             changed = True
 
     if changed or not USERS_FILE.exists():
-        save_json(USERS_FILE, users)
+        save_json(
+            USERS_FILE,
+            users
+        )
 
     if not CASES_FILE.exists():
         save_json(CASES_FILE, [])
@@ -203,7 +227,10 @@ def initialize_database():
         save_json(ALERTS_FILE, [])
 
     if not LOGIN_ATTEMPTS_FILE.exists():
-        save_json(LOGIN_ATTEMPTS_FILE, {})
+        save_json(
+            LOGIN_ATTEMPTS_FILE,
+            {}
+        )
 
 
 initialize_database()
@@ -224,7 +251,7 @@ def hash_text(text):
 
 
 # ============================================================
-# BLOCKCHAIN AUDIT
+# BLOCKCHAIN
 # ============================================================
 
 def add_blockchain_block(entry):
@@ -441,18 +468,14 @@ if "user_info" not in st.session_state:
 # CSS
 # ============================================================
 
-st.markdown(
+render_html(
     """
     <style>
-
-    /* MAIN BACKGROUND */
 
     .stApp {
         background-color: #07111F;
         color: #FFFFFF;
     }
-
-    /* GENERAL TEXT */
 
     .stApp p,
     .stApp span,
@@ -464,9 +487,6 @@ st.markdown(
         color: #FFFFFF !important;
     }
 
-
-    /* SIDEBAR */
-
     section[data-testid="stSidebar"] {
         background-color: #0B1F33 !important;
     }
@@ -475,16 +495,10 @@ st.markdown(
         color: #FFFFFF !important;
     }
 
+    section[data-testid="stSidebar"] p,
     section[data-testid="stSidebar"] label {
         color: #FFFFFF !important;
     }
-
-    section[data-testid="stSidebar"] p {
-        color: #FFFFFF !important;
-    }
-
-
-    /* INPUTS */
 
     input,
     textarea {
@@ -498,9 +512,6 @@ st.markdown(
         color: #A9C5D5 !important;
     }
 
-
-    /* SELECTBOX */
-
     div[data-baseweb="select"] > div {
         background-color: #102A43 !important;
         color: #FFFFFF !important;
@@ -509,9 +520,6 @@ st.markdown(
     div[data-baseweb="select"] * {
         color: #FFFFFF !important;
     }
-
-
-    /* BUTTONS */
 
     .stButton > button {
         background-color: #176B87 !important;
@@ -525,9 +533,6 @@ st.markdown(
         background-color: #2186A5 !important;
         color: #FFFFFF !important;
     }
-
-
-    /* CARDS */
 
     .security-card {
         background-color: #0D263A;
@@ -550,9 +555,6 @@ st.markdown(
         margin-bottom: 20px;
     }
 
-
-    /* METRICS */
-
     div[data-testid="stMetric"] {
         background-color: #0D263A !important;
         border: 1px solid #245B78 !important;
@@ -568,9 +570,6 @@ st.markdown(
         color: #FFFFFF !important;
     }
 
-
-    /* EXPANDERS */
-
     details {
         background-color: #0D263A !important;
         border: 1px solid #245B78 !important;
@@ -581,9 +580,6 @@ st.markdown(
         color: #FFFFFF !important;
     }
 
-
-    /* FILE UPLOADER */
-
     section[data-testid="stFileUploader"] {
         background-color: #0D263A !important;
         border: 1px solid #245B78 !important;
@@ -593,16 +589,6 @@ st.markdown(
     section[data-testid="stFileUploader"] * {
         color: #FFFFFF !important;
     }
-
-
-    /* ALERTS */
-
-    div[data-testid="stAlert"] * {
-        color: #FFFFFF !important;
-    }
-
-
-    /* TABLE */
 
     table {
         color: #FFFFFF !important;
@@ -619,8 +605,7 @@ st.markdown(
     }
 
     </style>
-    """,
-    unsafe_allow_html=True
+    """
 )
 
 
@@ -637,7 +622,7 @@ def set_background(image_path):
             "/"
         )
 
-        st.markdown(
+        render_html(
             f"""
             <style>
 
@@ -655,13 +640,12 @@ def set_background(image_path):
             }}
 
             </style>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
 
 # ============================================================
-# LOGIN PAGE
+# LOGIN
 # ============================================================
 
 def login_page():
@@ -670,7 +654,7 @@ def login_page():
         POLICE_BG
     )
 
-    st.markdown(
+    render_html(
         """
         <div style="
             max-width:850px;
@@ -686,7 +670,9 @@ def login_page():
                 padding:35px;
             ">
 
-                <div style="font-size:55px;">
+                <div style="
+                    font-size:55px;
+                ">
                     🔐
                 </div>
 
@@ -708,8 +694,7 @@ def login_page():
             </div>
 
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
     left, center, right = st.columns(
@@ -718,7 +703,7 @@ def login_page():
 
     with center:
 
-        st.markdown(
+        render_html(
             """
             <div class="security-card">
 
@@ -735,8 +720,7 @@ def login_page():
                 </p>
 
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
         username = st.text_input(
@@ -801,18 +785,17 @@ def show_sidebar():
                 width=80
             )
 
-        st.markdown(
+        render_html(
             """
             <h2 style="
                 color:#FFFFFF !important;
             ">
                 🔐 Secure DMS
             </h2>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
-        st.markdown(
+        render_html(
             f"""
             <div style="
                 background:#12344A;
@@ -834,8 +817,7 @@ def show_sidebar():
                 </p>
 
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
         st.write("")
@@ -851,7 +833,7 @@ def show_sidebar():
 
             st.rerun()
 
-        st.markdown(
+        render_html(
             """
             <p style="
                 color:#FFFFFF !important;
@@ -861,8 +843,7 @@ def show_sidebar():
             ">
                 Navigation
             </p>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
         pages = [
@@ -875,10 +856,7 @@ def show_sidebar():
             "ℹ️ System Information"
         ]
 
-        if user["role"] in [
-            "ADMIN",
-            "HEAD"
-        ]:
+        if user["role"] in ["ADMIN", "HEAD"]:
 
             pages.append(
                 "🚨 Security Alerts"
@@ -943,7 +921,7 @@ def dashboard_page():
         []
     )
 
-    st.markdown(
+    render_html(
         """
         <div class="security-title">
             🏠 Secure DMS Dashboard
@@ -952,8 +930,7 @@ def dashboard_page():
         <div class="security-subtitle">
             Secure Digital Document Management System
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
     col1, col2, col3, col4 = st.columns(4)
@@ -982,9 +959,7 @@ def dashboard_page():
             len(chain)
         )
 
-    st.write("")
-
-    st.markdown(
+    render_html(
         """
         <div class="security-card">
 
@@ -1013,8 +988,7 @@ def dashboard_page():
             </p>
 
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
 
@@ -1222,7 +1196,7 @@ def documents_page():
             file_bytes
         )
 
-        st.markdown(
+        render_html(
             f"""
             <div class="security-card">
 
@@ -1246,8 +1220,7 @@ def documents_page():
                 </p>
 
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
         if st.button(
@@ -1311,7 +1284,7 @@ def documents_page():
 
     for document in reversed(documents):
 
-        st.markdown(
+        render_html(
             f"""
             <div class="security-card">
 
@@ -1337,8 +1310,7 @@ def documents_page():
                 </p>
 
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
 
@@ -1386,7 +1358,7 @@ def integrity_page():
         document["stored_file"]
     )
 
-    st.markdown(
+    render_html(
         f"""
         <div class="security-card">
 
@@ -1402,8 +1374,7 @@ def integrity_page():
             </p>
 
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
     if not file_path.exists():
@@ -1425,7 +1396,7 @@ def integrity_page():
         current_bytes
     )
 
-    st.markdown(
+    render_html(
         f"""
         <div class="security-card">
 
@@ -1441,8 +1412,7 @@ def integrity_page():
             </p>
 
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
     if current_hash == document["sha256"]:
@@ -1494,17 +1464,13 @@ def search_page():
     matching_cases = [
         case
         for case in cases
-        if term in json.dumps(
-            case
-        ).lower()
+        if term in json.dumps(case).lower()
     ]
 
     matching_documents = [
         document
         for document in documents
-        if term in json.dumps(
-            document
-        ).lower()
+        if term in json.dumps(document).lower()
     ]
 
     st.subheader(
@@ -1513,7 +1479,7 @@ def search_page():
 
     for case in matching_cases:
 
-        st.markdown(
+        render_html(
             f"""
             <div class="security-card">
 
@@ -1531,8 +1497,7 @@ def search_page():
                 </p>
 
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
     st.subheader(
@@ -1541,7 +1506,7 @@ def search_page():
 
     for document in matching_documents:
 
-        st.markdown(
+        render_html(
             f"""
             <div class="security-card">
 
@@ -1555,8 +1520,7 @@ def search_page():
                 </p>
 
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
 
@@ -1583,7 +1547,7 @@ def blockchain_page():
 
         return
 
-    st.markdown(
+    render_html(
         """
         <div class="security-card">
 
@@ -1599,8 +1563,7 @@ def blockchain_page():
             </p>
 
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
     for block in reversed(chain):
@@ -1625,14 +1588,20 @@ def blockchain_page():
                 f'**Details:** {block["details"]}'
             )
 
-            st.code(
-                "Previous Hash:\n"
-                + block["previous_hash"]
+            st.write(
+                "Previous Hash"
             )
 
             st.code(
-                "Current Hash:\n"
-                + block["current_hash"]
+                block["previous_hash"]
+            )
+
+            st.write(
+                "Current Hash"
+            )
+
+            st.code(
+                block["current_hash"]
             )
 
 
@@ -1678,7 +1647,7 @@ def security_alerts_page():
         visible_alerts
     ):
 
-        st.markdown(
+        render_html(
             f"""
             <div style="
                 background:#351B22;
@@ -1720,8 +1689,7 @@ def security_alerts_page():
                 </p>
 
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
 
@@ -1788,7 +1756,7 @@ def user_management_page():
 
     for username, user in users.items():
 
-        st.markdown(
+        render_html(
             f"""
             <div class="security-card">
 
@@ -1810,8 +1778,7 @@ def user_management_page():
                 </p>
 
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
 
@@ -1825,7 +1792,7 @@ def system_info_page():
         "ℹ️ System Information"
     )
 
-    st.markdown(
+    render_html(
         """
         <div class="security-card">
 
@@ -1846,15 +1813,14 @@ def system_info_page():
             </p>
 
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
     col1, col2 = st.columns(2)
 
     with col1:
 
-        st.markdown(
+        render_html(
             """
             <div class="security-card">
 
@@ -1887,13 +1853,12 @@ def system_info_page():
                 </p>
 
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
     with col2:
 
-        st.markdown(
+        render_html(
             """
             <div class="security-card">
 
@@ -1926,13 +1891,12 @@ def system_info_page():
                 </p>
 
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
 
 # ============================================================
-# MAIN PROGRAM
+# MAIN APP
 # ============================================================
 
 if not st.session_state.logged_in:
