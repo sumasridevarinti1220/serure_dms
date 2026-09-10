@@ -4,7 +4,7 @@ import json
 import hashlib
 import uuid
 from datetime import datetime
-from textwrap import dedent
+
 
 
 # ============================================================
@@ -150,14 +150,7 @@ DEFAULT_USERS = {
 # ============================================================
 
 def render_html(content):
-    """
-    Removes Python indentation before sending HTML to Streamlit.
-    This prevents Streamlit from displaying HTML as a code block.
-    """
-    st.markdown(
-        dedent(content),
-        unsafe_allow_html=True
-    )
+    st.html(content)
 
 
 # ============================================================
